@@ -10,7 +10,11 @@ export const getRandomNote = async (): Promise<AnkiNote | undefined> => {
     payload: {
       action: 'findNotes',
       version: 6,
-      params: { query: '(deck:VocabJP::Hiragana OR deck:VocabJP::Kanji) prop:ease>0' },
+      params: {
+        query:
+          //  '(deck:VocabJP::Hiragana OR deck:VocabJP::Kanji) prop:ease>0' // all hiragana and kanji vocab
+          `deck:VocabJP (v1 OR v1-s OR v5aru OR v5b OR v5g OR v5k OR v5k-s OR v5m OR v5n OR v5r OR v5r-i OR v5s OR v5t OR v5u OR v5u-s) prop:ease>0`, // verbs
+      },
     },
   })
 

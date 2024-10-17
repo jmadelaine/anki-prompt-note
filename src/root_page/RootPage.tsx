@@ -1,11 +1,12 @@
 import { getRandomNote } from 'api/getRandomNote'
 import { Button } from 'components/input/Button'
-import { Col } from 'components/layout/Layout'
+import { Col, Row } from 'components/layout/Layout'
 import { Page } from 'components/layout/Page'
 import { Text } from 'components/presentation/Text'
 import { useHotkeys } from 'helpers/hotkeys'
 import { For, createEffect, createSignal, on } from 'solid-js'
 import { css, theme } from 'style/theme'
+import { is, isArrayOf } from 'ts-guardian'
 import { AnkiNote } from 'types/data'
 import { Comp, PComp } from 'types/utils'
 
@@ -85,14 +86,75 @@ export const RootPage: Comp = () => {
           })}
         >
           <Col scrollable={true} align="center" gap="0.5rem" padding="0 2rem">
-            <For each={JSON.parse(notes().at(-1)?.def.replaceAll('\\\\', '\\') ?? '[]')}>
-              {d => (
-                <Text size="lg" color={theme.colors.text(0, 0.5)}>
-                  {/* eslint-disable-next-line */}
-                  {(d as string[][])[1].join('; ')}
-                </Text>
-              )}
-            </For>
+            <Col>
+              <For each={JSON.parse(notes().at(-1)?.def.replaceAll('\\\\', '\\') ?? '[]')}>
+                {d => {
+                  if (!is([isArrayOf('string'), isArrayOf('string')])(d)) throw new Error('Def is not string[][]')
+                  const [wordType, definition] = d
+
+                  return (
+                    <Col>
+                      <Row gap="0.5rem">
+                        <For each={wordType}>
+                          {wt => (
+                            <Text
+                              class={css({
+                                padding: '0.125rem 0.5rem',
+                                borderRadius: '99999px',
+                                textTransform: 'uppercase',
+                                fontSize: theme.font.size.xs,
+                                fontWeight: theme.font.weight.semibold,
+                                color: theme.colors.text(0, 0.875),
+                                backgroundColor:
+                                  {
+                                    vt: '#8611AD',
+                                    vi: '#8611AD',
+                                    v1: '#AD1138',
+                                    'v1-s': '#AD1138',
+                                    v5aru: '#AD1138',
+                                    v5b: '#AD1138',
+                                    v5g: '#AD1138',
+                                    v5k: '#AD1138',
+                                    v5m: '#AD1138',
+                                    v5n: '#AD1138',
+                                    v5r: '#AD1138',
+                                    v5s: '#AD1138',
+                                    v5t: '#AD1138',
+                                    v5u: '#AD1138',
+                                  }[wt] ?? theme.colors.text(0, 0.2),
+                              })}
+                              size="md"
+                              color={theme.colors.text(0, 0.5)}
+                            >
+                              {{
+                                vt: 'transitive',
+                                vi: 'intransitive',
+                                v1: 'Ichidan verb',
+                                'v1-s': 'Ichidan verb (kureru)',
+                                v5aru: 'Godan verb (aru)',
+                                v5b: 'Godan verb',
+                                v5g: 'Godan verb',
+                                v5k: 'Godan verb',
+                                v5m: 'Godan verb',
+                                v5n: 'Godan verb',
+                                v5r: 'Godan verb',
+                                v5s: 'Godan verb',
+                                v5t: 'Godan verb',
+                                v5u: 'Godan verb',
+                              }[wt] ?? wt}
+                            </Text>
+                          )}
+                        </For>
+                      </Row>
+
+                      <Text size="lg" color={theme.colors.text(0, 0.5)}>
+                        {definition.join('; ')}
+                      </Text>
+                    </Col>
+                  )
+                }}
+              </For>
+            </Col>
           </Col>
           <Col align="center" padding="0 2rem">
             <PrimaryButton onClick={getAndSetRandomNote}>{'Random Word'}</PrimaryButton>
